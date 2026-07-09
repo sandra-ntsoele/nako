@@ -1,6 +1,5 @@
-import { DefaultTheme, ThemeProvider } from "expo-router";
+import { DefaultTheme, Stack, ThemeProvider } from "expo-router";
 
-import AppTabs from "@/components/app-tabs";
 import { NakoTheme } from "@/constants/theme";
 
 const navigationTheme = {
@@ -15,10 +14,14 @@ const navigationTheme = {
 	},
 };
 
-export default function TabLayout() {
+export default function RootLayout() {
 	return (
 		<ThemeProvider value={navigationTheme}>
-			<AppTabs />
+			<Stack
+				screenOptions={{
+					headerShown: false,
+				}}
+			/>
 		</ThemeProvider>
 	);
 }
