@@ -1,26 +1,33 @@
 import { useEffect, useRef, useState } from "react";
 import {
-	Animated,
-	Easing,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
+    Animated,
+    Easing,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ThemedView } from "@/components/themed-view";
 import { ComponentStyles } from "@/constants/component-styles";
 import {
-	BottomTabInset,
-	MaxContentWidth,
-	NakoTheme,
-	Spacing,
+    BottomTabInset,
+    Colors,
+    MaxContentWidth,
+    NakoTheme,
+    Spacing,
 } from "@/constants/theme";
+import { PlayIcon, StopCircle } from 'lucide-react-native';
 
-const DURATION_MINUTES = [25, 45, 60];
+const DURATION_MINUTES = [1, 45, 60];
 
 const toMMSS = (minutes: number) => `${String(minutes).padStart(2, "0")}:00`;
+
+interface TimeLeft {
+    minutes: string,
+    seconds: string
+}
 
 export default function HomeScreen() {
 	const [selectedDurationIndex, setSelectedDurationIndex] = useState(0);
@@ -30,12 +37,49 @@ export default function HomeScreen() {
 	const indicatorX = useRef(new Animated.Value(0)).current;
 	const scaleValue = useRef(
 		DURATION_MINUTES.map(() => new Animated.Value(1)),
-	).current;
+    ).current;
+
+    const [isRunning, setIsRunning] = useState<boolean>(false);
+    const startTimestamp = Date.now();
+    const targetTimestamp = startTimestamp + (DURATION_MINUTES[selectedDurationIndex] * 60000);
+    const [timeLeft, setTimeLeft] = useState<TimeLeft>({
+        minutes: String(DURATION_MINUTES[0]).padStart(2, "0"),
+        seconds: String(0).padStart(2, "0")
+    });
+
+    const calcTimeLeft = () => {
+        const diff = targetTimestamp - Date.now();
+
+        if (diff <= 0) return {
+            minutes: String(0).padStart(2, "0"),
+            seconds: String(0).padStart(2, "0")
+        };
+
+        return {
+            minutes: String(Math.floor(diff / 60000) % 60).padStart(2, "0"),
+            seconds: String(Math.floor(diff / 1000) % 60).padStart(2, "0")
+        }
+    }
+
+    useEffect(() => {
+        if (!isRunning) return;
+
+        const timer = setInterval(() => {
+            setTimeLeft(calcTimeLeft())
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [isRunning])
 
 	useEffect(() => {
 		if (trackWidth === 0) {
 			return;
-		}
+        }
+        
+        setTimeLeft({
+            minutes: String(DURATION_MINUTES[selectedDurationIndex]).padStart(2, "0"),
+            seconds: String(0).padStart(2, "0")
+        })
 
 		Animated.timing(indicatorX, {
 			toValue:
@@ -44,10 +88,11 @@ export default function HomeScreen() {
 			easing: Easing.out(Easing.cubic),
 			useNativeDriver: true,
 		}).start();
-	}, [indicatorX, selectedDurationIndex, segmentWidth, trackWidth]);
+    }, [indicatorX, selectedDurationIndex, segmentWidth, trackWidth]);
+    
 
-	const handlePressIn = (index: number) => {
-		setSelectedDurationIndex(index);
+    const handleDurationPressIn = (index: number) => {
+        setSelectedDurationIndex(index);
 
 		Animated.spring(scaleValue[index], {
 			toValue: 0.95,
@@ -55,14 +100,27 @@ export default function HomeScreen() {
 		}).start();
 	};
 
-	const handlePressOut = (index: number) => {
+	const handleDurationPressOut = (index: number) => {
 		Animated.spring(scaleValue[index], {
 			toValue: 1,
 			friction: 3,
 			tension: 40,
 			useNativeDriver: true,
 		}).start();
-	};
+    };
+    
+    const startTimer = () => {
+        setIsRunning(true);
+    }
+
+    const stopTimer = () => {
+        setIsRunning(false);
+
+        setTimeLeft({
+            minutes: String(DURATION_MINUTES[selectedDurationIndex]).padStart(2, "0"),
+            seconds: String(0).padStart(2, "0")
+        })
+    }
 
 	return (
 		<ThemedView style={styles.container}>
@@ -73,7 +131,7 @@ export default function HomeScreen() {
 						<Text style={ComponentStyles.caption}>
 							Use time intentionally
 						</Text>
-					</View>
+                    </View>
 
 					<View
 						style={[
@@ -82,9 +140,33 @@ export default function HomeScreen() {
 						]}
 					>
 						<Text style={ComponentStyles.timerText}>
-							{toMMSS(DURATION_MINUTES[selectedDurationIndex])}
-						</Text>
-					</View>
+                            {timeLeft.minutes}:{timeLeft.seconds}
+                        </Text>
+
+                        <View
+                            style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "center",
+                                gap: Spacing.five
+                            }}
+                        >
+                            <TouchableOpacity
+                                onPress={stopTimer}
+                                style={[ComponentStyles.secondaryButton]}
+                            >
+                                <StopCircle width={56} color={Colors.light.danger}/>
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity
+                                style={ComponentStyles.primaryButton}
+                                onPress={startTimer}
+                            >
+                                <PlayIcon width={56} color={Colors.light.textInverted}/>
+                            </TouchableOpacity>
+                        </View>
+
+                    </View>
 
 					<View
 						style={ComponentStyles.durationPicker}
@@ -117,8 +199,8 @@ export default function HomeScreen() {
 											],
 										},
 									]}
-									onPressIn={() => handlePressIn(index)}
-									onPressOut={() => handlePressOut(index)}
+									onPressIn={() => handleDurationPressIn(index)}
+									onPressOut={() => handleDurationPressOut(index)}
 								>
 									<Text
 										style={[

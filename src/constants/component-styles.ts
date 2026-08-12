@@ -1,11 +1,11 @@
 import { StyleSheet } from "react-native";
 
 import {
-	BottomTabInset,
-	MaxContentWidth,
-	NakoTheme,
-	Radius,
-	Spacing,
+    BottomTabInset,
+    MaxContentWidth,
+    NakoTheme,
+    Radius,
+    Spacing,
 } from "./theme";
 
 export const ComponentStyles = StyleSheet.create({
@@ -74,7 +74,8 @@ export const ComponentStyles = StyleSheet.create({
 		color: NakoTheme.colors.textPrimary,
 		fontFamily: NakoTheme.typography.fontFamily,
 		fontSize: NakoTheme.typography.sizes.display,
-		fontWeight: NakoTheme.typography.weights.bold,
+        fontWeight: NakoTheme.typography.weights.bold,
+        letterSpacing: NakoTheme.spacing.sm,
 		lineHeight: 90,
 	},
 	durationPicker: {
@@ -112,7 +113,7 @@ export const ComponentStyles = StyleSheet.create({
 	},
 	primaryButton: {
 		minHeight: 56,
-		borderRadius: Radius.lg,
+		borderRadius: Radius.full,
 		alignItems: "center",
 		justifyContent: "center",
 		backgroundColor: NakoTheme.colors.primary,
@@ -130,7 +131,7 @@ export const ComponentStyles = StyleSheet.create({
 	},
 	secondaryButton: {
 		minHeight: 56,
-		borderRadius: Radius.lg,
+		borderRadius: Radius.full,
 		alignItems: "center",
 		justifyContent: "center",
 		backgroundColor: NakoTheme.colors.surface,
