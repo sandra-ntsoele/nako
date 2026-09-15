@@ -2,18 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, Text, TouchableOpacity } from "react-native";
 
 import { ComponentStyles } from "@/constants/component-styles";
+import { SESSION_DURATION_OPTIONS as durations, SESSION_DURATION_OPTIONS, SessionDuration } from "@/constants/misc";
 import { NakoTheme } from "@/constants/theme";
 
 type DurationPickerProps = {
-	durations: number[];
-	selectedIndex: number;
-	onSelect: (index: number) => void;
+	selectedDuration: SessionDuration;
+	onSelectedDuration: (index: SessionDuration) => void;
 };
 
 export function DurationPicker({
-	durations,
-	selectedIndex,
-	onSelect,
+	selectedDuration,
+	onSelectedDuration,
 }: DurationPickerProps) {
 	const [trackWidth, setTrackWidth] = useState(0);
 	const segmentWidth =
@@ -21,7 +20,8 @@ export function DurationPicker({
 	const indicatorX = useRef(new Animated.Value(0)).current;
 	const scaleValue = useRef(
 		durations.map(() => new Animated.Value(1)),
-	).current;
+    ).current;
+    const selectedIndex = SESSION_DURATION_OPTIONS.indexOf(selectedDuration);
 
 	useEffect(() => {
 		if (trackWidth === 0) {
@@ -36,8 +36,8 @@ export function DurationPicker({
 		}).start();
 	}, [indicatorX, selectedIndex, segmentWidth, trackWidth]);
 
-	const handlePressIn = (index: number) => {
-		onSelect(index);
+	const handlePressIn = (duration: SessionDuration, index: number) => {
+		onSelectedDuration(duration);
 
 		Animated.spring(scaleValue[index], {
 			toValue: 0.95,
@@ -71,7 +71,7 @@ export function DurationPicker({
 				/>
 			)}
 			{durations.map((duration, index) => {
-				const active = selectedIndex === index;
+				const active = selectedDuration === duration;
 
 				return (
 					<TouchableOpacity
@@ -82,7 +82,7 @@ export function DurationPicker({
 								transform: [{ scale: scaleValue[index] }],
 							},
 						]}
-						onPressIn={() => handlePressIn(index)}
+						onPressIn={() => handlePressIn(duration, index)}
 						onPressOut={() => handlePressOut(index)}
 					>
 						<Text

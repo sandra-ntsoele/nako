@@ -6,30 +6,29 @@ import { DurationPicker } from "@/components/index/duration-picker";
 import { SessionSummary } from "@/components/index/session-summary";
 import { ThemedView } from "@/components/themed-view";
 import { ComponentStyles } from "@/constants/component-styles";
+import { SESSION_DURATION_OPTIONS, SessionDuration } from "@/constants/misc";
 import {
-	BottomTabInset,
-	Colors,
-	MaxContentWidth,
-	Spacing,
+    BottomTabInset,
+    Colors,
+    MaxContentWidth,
+    Spacing,
 } from "@/constants/theme";
+import { sessionDurationToMMSS } from "@/utils/time.utils";
 import { PlayIcon, StopCircle } from "lucide-react-native";
 
-const DURATION_MINUTES = [1, 45, 60];
-
 export default function HomeScreen() {
-	const [selectedDurationIndex, setSelectedDurationIndex] = useState(0);
+    const [isRunning, setIsRunning] = useState<boolean>(false);
+    const [selectedDuration, setSelectedDuration] = useState<SessionDuration>(SESSION_DURATION_OPTIONS[0]);
+
+    const stopTimer = () => { }
+    const startTimer = () => {
+        
+    }
 
 	return (
 		<ThemedView style={styles.container}>
 			<SafeAreaView style={styles.safeArea}>
 				<View style={[styles.content, ComponentStyles.section]}>
-					{/* Header */}
-					<View style={ComponentStyles.section}>
-						<Text style={ComponentStyles.title}>Nako</Text>
-						<Text style={ComponentStyles.caption}>
-							Use time intentionally
-						</Text>
-					</View>
 
 					{/* Timer Face */}
 					<View
@@ -37,8 +36,11 @@ export default function HomeScreen() {
 							ComponentStyles.section,
 							ComponentStyles.timerShell,
 						]}
-					>
-						<Text style={ComponentStyles.timerText}>MM : SS</Text>
+                    >
+                        
+                        <Text style={ComponentStyles.timerText}>
+                            {sessionDurationToMMSS(selectedDuration)}
+                        </Text>
 
 						<View
 							style={{
@@ -49,7 +51,8 @@ export default function HomeScreen() {
 							}}
 						>
 							<TouchableOpacity
-								style={[ComponentStyles.secondaryButton]}
+                                style={[ComponentStyles.secondaryButton]}
+                                onPress={stopTimer}
 							>
 								<StopCircle
 									width={56}
@@ -58,7 +61,8 @@ export default function HomeScreen() {
 							</TouchableOpacity>
 
 							<TouchableOpacity
-								style={ComponentStyles.primaryButton}
+                                style={ComponentStyles.primaryButton}
+                                onPress={startTimer}
 							>
 								<PlayIcon
 									width={56}
@@ -69,9 +73,8 @@ export default function HomeScreen() {
 					</View>
 
 					<DurationPicker
-						durations={DURATION_MINUTES}
-						selectedIndex={selectedDurationIndex}
-						onSelect={setSelectedDurationIndex}
+						selectedDuration={selectedDuration}
+						onSelectedDuration={setSelectedDuration}
 					/>
 
 					<SessionSummary />
